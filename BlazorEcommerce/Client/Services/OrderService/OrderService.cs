@@ -5,24 +5,19 @@ namespace BlazorEcommerce.Client.Services.OrderService
     public class OrderService : IOrderService
     {
         private readonly HttpClient _http;
-        private readonly AuthenticationStateProvider _authStateProvider;
+        private readonly IAuthService _authService;
         private readonly NavigationManager _navigationManager;
 
-        public OrderService(HttpClient http, AuthenticationStateProvider authStateProvider, NavigationManager navigationManager)
+        public OrderService(HttpClient http, IAuthService authService, NavigationManager navigationManager)
         {
             _http = http;
-            _authStateProvider = authStateProvider;
+            _authService = authService;
             _navigationManager = navigationManager;
-        }
-
-        private async Task<bool> IsUserAuthenticated()
-        {
-            return (await _authStateProvider.GetAuthenticationStateAsync()).User.Identity.IsAuthenticated;
         }
 
         public async Task PlaceOrder()
         {
-            if(await IsUserAuthenticated())
+            if(await _authService.IsUserAuthenticated())
             {
                 await _http.PostAsync("api/order", null);
             }
@@ -30,6 +25,18 @@ namespace BlazorEcommerce.Client.Services.OrderService
             {
                 _navigationManager.NavigateTo("login");
             }
+        }
+
+        public async Task<List<OrderOverviewResponse>> GetOrders()
+        {
+            var result = await _http.GetFromJsonAsync<ServiceResponse<List<OrderOverviewResponse>>>("api/order");
+            return result.Data;
+        }
+
+        public async Task<OrderDetailsResponse> GetOrderDetails(int orderId)
+        {
+            var result = await _http.GetFromJsonAsync<ServiceResponse<OrderDetailsResponse>>($"api/order/{orderId}");
+            return result.Data;
         }
     }
 }
