@@ -2,6 +2,7 @@
 @inject ICartService CartService
 @inject IOrderService OrderService
 @inject NavigationManager NavigationManager
+@inject IAuthService AuthService
 
 <PageTitle>Shopping Cart</PageTitle>
 
@@ -33,6 +34,13 @@ else
 			Total (@cartProducts.Count): $@cartProducts.Sum(product => @product.Price * product.Quantity)
 		</div>
 	</div>
+	@if(isAuthenticated)
+	{
+		<div>
+			<h5>Delivery Address</h5>
+			<AddressForm />
+		</div>
+	}
 	<button @onclick="PlaceOrder" class="btn alert-success float-end mt-1">Checkout</button>
 }
 
@@ -40,9 +48,11 @@ else
 
 	List<CartProductResponse> cartProducts = null;
 	string message = "Loading cart...";
+	bool isAuthenticated = false;
 
 	protected override async Task OnInitializedAsync()
 	{
+		isAuthenticated = await AuthService.IsUserAuthenticated();
 		await LoadCart();
 	}
 
