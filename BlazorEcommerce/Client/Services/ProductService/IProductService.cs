@@ -5,6 +5,8 @@
 		event Action ProductsChanged;
 
 		List<Product> Products { get; set; }
+		
+		List<Product> AdminProducts { get; set; }
 
         string Message { get; set; }
 
@@ -21,5 +23,7 @@
 		Task SearchProducts(string searchText, int page);
 
 		Task<List<string>> GetProductSearchSuggestions(string searchText);
+
+		Task GetAdminProducts();
 	}
 }
